@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img" aria-labelledby="title desc">
+  <title id="title">Obsidian Knowledge Workspace</title>
+  <desc id="desc">Your files become a local knowledge workspace. Codex can retrieve sources and help you continue your work.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#171421"/><stop offset="1" stop-color="#272133"/></linearGradient>
+    <linearGradient id="accent"><stop stop-color="#c6aaff"/><stop offset="1" stop-color="#98dfce"/></linearGradient>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#9283b4" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="1200" height="400" rx="22" fill="url(#bg)"/>
+  <circle cx="1102" cy="-12" r="208" fill="#8e66cf" opacity=".08"/>
+  <circle cx="50" cy="438" r="165" fill="#99d4c7" opacity=".05"/>
+  <g font-family="Segoe UI,Arial,PingFang SC,Microsoft YaHei,sans-serif">
+    <text x="54" y="54" fill="#bba9d6" font-size="13" letter-spacing="2">OBSIDIAN + CODEX</text>
+    <text x="54" y="114" fill="#f6f1ff" font-size="42" font-weight="650">Knowledge grows with you.</text>
+    <text x="54" y="155" fill="#bfb6ce" font-size="20">个人的长期知识积累 · 工作、学习、生活与研究</text>
+    <g transform="translate(54 202)">
+      <rect width="286" height="132" rx="15" fill="#282334" stroke="#443a55"/>
+      <path d="M22 30 v-8 h17 l7 8 h22 v32 H22 Z" fill="none" stroke="#c6aaff" stroke-width="2"/>
+      <text x="86" y="40" fill="#efe9fa" font-size="20" font-weight="600">Your files</text>
+      <text x="22" y="93" fill="#b5aac7" font-size="16">Documents · notes · projects</text>
+      <text x="22" y="115" fill="#8e839d" font-size="13">Originals stay in place</text>
+    </g>
+    <path d="M359 264 H408" fill="none" stroke="#9283b4" stroke-width="2" marker-end="url(#arrow)"/>
+    <g transform="translate(431 202)">
+      <rect width="286" height="132" rx="15" fill="#302638" stroke="#8d6cb1"/>
+      <path d="M22 25 l18-9 17 19-9 26-22-5 Z" fill="none" stroke="#c6aaff" stroke-width="2"/>
+      <text x="86" y="40" fill="#efe9fa" font-size="20" font-weight="600">Obsidian</text>
+      <text x="22" y="93" fill="#b5aac7" font-size="16">Search · connections · your notes</text>
+      <text x="22" y="115" fill="#8e839d" font-size="13">A local, editable workspace</text>
+    </g>
+    <path d="M736 264 H785" fill="none" stroke="#9283b4" stroke-width="2" marker-end="url(#arrow)"/>
+    <g transform="translate(808 202)">
+      <rect width="338" height="132" rx="15" fill="#23302f" stroke="#527e75"/>
+      <path d="M25 28 l-10 10 10 10 m25-20 10 10-10 10 m-13-27-7 34" fill="none" stroke="#98dfce" stroke-width="2"/>
+      <text x="86" y="40" fill="#edf8f5" font-size="20" font-weight="600">Codex</text>
+      <text x="22" y="93" fill="#afc9c2" font-size="16">Source-backed answers · weekly upkeep</text>
+      <text x="22" y="115" fill="#809f96" font-size="13">Build on what you already know</text>
+    </g>
+    <text x="54" y="372" fill="#9689a7" font-size="14">Collect what matters. Understand it. Continue from there.</text>
+  </g>
+</svg>

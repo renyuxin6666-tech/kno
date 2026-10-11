@@ -11,6 +11,7 @@ CONFIG = Settings()
 ROOT = CONFIG.source
 WORKSPACE = CONFIG.workspace
 DATA = WORKSPACE / "data"
+T = CONFIG.text
 PRUNE = {".git", ".svn", ".hg", "node_modules", ".venv", "venv", "__pycache__",
          ".cache", ".pytest_cache", ".mypy_cache", ".ruff_cache", ".next", ".nuxt",
          ".turbo", ".codex", ".agents", ".ssh", ".aws", ".azure", ".accelerate",
@@ -59,7 +60,7 @@ def main():
                                     "modified_utc": datetime.fromtimestamp(st.st_mtime, timezone.utc).isoformat(),
                                     "text_candidate": ext in TEXT_EXT})
                     if len(records) % 20000 == 0:
-                        print(f'Inventory: {len(records)} files; current project: {project}', flush=True)
+                        print(T(f'目录索引：{len(records)} 个文件；当前分组：{project}',f'Inventory: {len(records)} files; current group: {project}'), flush=True)
             except OSError as e:
                 errors.append({"path": rel, "error": type(e).__name__})
     for entry in sorted(os.scandir(ROOT), key=lambda e: e.name.casefold()):
@@ -70,11 +71,11 @@ def main():
                 continue
             projects[entry.name] = {"path": str(p)}
             walk(p, entry.name)
-            print(f'Scanned: {entry.name}; cumulative files: {len(records)}', flush=True)
+            print(T(f'已扫描：{entry.name}；累计 {len(records)} 个文件',f'Scanned: {entry.name}; cumulative files: {len(records)}'), flush=True)
         elif entry.is_file(follow_symlinks=False) and not sensitive(entry.name):
             st = entry.stat(follow_symlinks=False)
-            projects.setdefault("根目录资料", {"path": str(ROOT)})
-            records.append({"path": str(p), "relative_path": p.name, "project": "根目录资料",
+            projects.setdefault(T('根目录资料','Root Files'), {"path": str(ROOT)})
+            records.append({"path": str(p), "relative_path": p.name, "project": T('根目录资料','Root Files'),
                             "extension": p.suffix.lower(), "size_bytes": st.st_size,
                             "modified_utc": datetime.fromtimestamp(st.st_mtime, timezone.utc).isoformat(),
                             "text_candidate": p.suffix.lower() in TEXT_EXT})

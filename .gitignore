@@ -4,6 +4,10 @@ settings.local.json
 .venv/
 data/
 研究知识库/
+个人知识库/
+Personal Knowledge/
+.knowledge-tools/
+.obsidian/
 private/
 __pycache__/
 *.pyc

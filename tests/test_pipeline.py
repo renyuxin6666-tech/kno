@@ -10,11 +10,13 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts'))
 from pipeline import locked, register_vault, vault_home_uri
-from settings import Settings
+from settings import Settings, resolve_timezone
 from extract_document import MAX_CHARS, extract
 
 def synthetic_pdf(pages=1, text='A synthetic PDF study with a verifiable text result.'):
@@ -70,9 +72,9 @@ class PipelineTests(unittest.TestCase):
             self.assertNotEqual(proc.returncode, 0)
         return proc
 
-    def setup(self):
-        self.cli('setup', '--source', str(self.source), '--workspace', str(self.workspace))
-        return self.workspace / '研究知识库'
+    def setup(self, *args):
+        self.cli('setup', '--source', str(self.source), '--workspace', str(self.workspace), *args)
+        return Settings(self.config).vault
 
     def report(self):
         return json.loads((self.workspace / 'data' / 'maintenance-latest.json').read_text(encoding='utf-8'))
@@ -244,6 +246,144 @@ class PipelineTests(unittest.TestCase):
         self.cli('refresh')
         self.assertFalse(self.report()['notification_needed'])
         self.assertFalse(self.report()['issues_changed'])
+
+    def test_fresh_chinese_workspace_is_generic_and_keeps_author_edits(self):
+        vault = self.setup()
+        config = Settings(self.config)
+        self.assertEqual(vault.name, '个人知识库')
+        self.assertFalse(config.legacy_layout)
+        self.assertIn('工作与项目', config.categories)
+        self.assertIn('生活与计划', config.categories)
+        self.assertIn('研究与探索', config.categories)
+        home = config.path('home').read_text(encoding='utf-8')
+        self.assertIn('Obsidian 个人知识工作台', home)
+        self.assertIn('工作项目、长期学习、个人记录、生活计划和研究探索', home)
+        self.assertTrue(config.path('map').is_file())
+        self.assertEqual(config.rel('profile'), '03_我的笔记/我的近况.md')
+        self.assertTrue(config.path('canvas').is_file())
+        config.path('profile').write_text('我确认的长期目标', encoding='utf-8')
+        config.path('knowledge_template').write_text('我的自定义模板', encoding='utf-8')
+        self.cli('refresh')
+        self.assertEqual(config.path('profile').read_text(encoding='utf-8'), '我确认的长期目标')
+        self.assertEqual(config.path('knowledge_template').read_text(encoding='utf-8'), '我的自定义模板')
+
+    def test_fresh_english_workspace_localizes_navigation_retrieval_and_launch(self):
+        self.original.rename(self.project / 'Work Note.md')
+        self.project.rename(self.source / 'Work Project')
+        vault = self.setup('--language','en','--vault-name','My Long Term Knowledge')
+        config = Settings(self.config)
+        self.assertEqual(vault.name, 'My Long Term Knowledge')
+        self.assertEqual(config.language, 'en')
+        self.assertFalse((vault / '00_开始').exists())
+        for key in ('home','profile','navigation','map','guide','codex','coverage','canvas',
+                    'knowledge_template','decision_template','reading_template','daily_template'):
+            self.assertTrue(config.path(key).is_file(), key)
+        home = config.path('home').read_text(encoding='utf-8')
+        self.assertIn('Obsidian Knowledge Workspace', home)
+        self.assertIn('life planning', home)
+        self.assertIn('## Start Here Today', home)
+        self.assertNotIn('00_开始', home)
+        decision = config.path('decision_template').read_text(encoding='utf-8')
+        self.assertIn('## My Choice and Reasoning', decision)
+        self.assertIn('{{title}}', decision)
+        self.assertNotIn('\\n', decision)
+        config.path('profile').write_text('Author confirms long-term learning priority.', encoding='utf-8')
+        result = json.loads(self.cli('context','--query','keyword_alpha').stdout)
+        self.assertIn('Author confirms', result['author_profile'])
+        self.assertEqual(len(result['evidence']),1)
+        self.assertTrue(result['evidence'][0]['matches_source_hash'])
+        self.assertIn('02_Sources', result['evidence'][0]['note'])
+        automatic_note = Path(self.report()['note']).read_text(encoding='utf-8')
+        self.assertIn('## Added Sources', automatic_note)
+        self.assertIn('00_Start/Coverage and Gaps', automatic_note)
+        app = json.loads((vault/'.obsidian/app.json').read_text(encoding='utf-8'))
+        self.assertEqual(app['newFileFolderPath'],'03_My_Notes')
+        canvas = json.loads(config.path('canvas').read_text(encoding='utf-8'))
+        self.assertTrue(all((vault/node['file']).is_file() for node in canvas['nodes']))
+        uri = vault_home_uri(vault, 'abcdef0123456789', config.rel('home'))
+        self.assertEqual(parse_qs(urlparse(uri).query)['file'], ['00_Start/Home.md'])
+        self.cli('refresh')
+        self.assertFalse(self.report()['notification_needed'])
+        self.assertIn('Author confirms', config.path('profile').read_text(encoding='utf-8'))
+
+    def test_legacy_config_keeps_existing_vault_paths_profile_and_hand_edits(self):
+        self.config.write_text(json.dumps({'source':str(self.source),'workspace':str(self.workspace),
+                                         'stable_project_ids':False}),encoding='utf-8')
+        config = Settings(self.config)
+        self.assertTrue(config.legacy_layout)
+        self.assertEqual(config.vault.name, '研究知识库')
+        self.assertEqual(config.rel('profile'),'03_我的笔记/我的研究近况.md')
+        self.assertEqual(config.rel('canvas'),'研究全景.canvas')
+        config.path('profile').parent.mkdir(parents=True)
+        config.path('profile').write_text('已有近况，作者已确认',encoding='utf-8')
+        config.path('home').parent.mkdir(parents=True)
+        config.path('home').write_text('已有自定义首页',encoding='utf-8')
+        config.path('canvas').write_text('{"nodes":[],"edges":[]}',encoding='utf-8')
+        before = self.config.read_bytes()
+        self.cli('refresh')
+        self.assertEqual(self.config.read_bytes(),before)
+        self.assertFalse((self.workspace/'个人知识库').exists())
+        self.assertTrue((config.vault/'01_项目/项目A.md').is_file())
+        self.assertTrue(config.path('map').is_file())
+        self.assertTrue(config.path('reading_template').is_file())
+        self.assertEqual(config.path('home').read_text(encoding='utf-8'),'已有自定义首页')
+        self.assertEqual(config.path('canvas').read_text(encoding='utf-8'),'{"nodes":[],"edges":[]}')
+        result = json.loads(self.cli('context','--query','keyword_alpha').stdout)
+        self.assertEqual(result['author_profile'],'已有近况，作者已确认')
+
+    def test_invalid_vault_names_cannot_escape_workspace(self):
+        for name in ('../outside', '..', 'CON', 'Trailing.','bad/name'):
+            with self.subTest(name=name):
+                self.cli('setup','--source',str(self.source),'--workspace',str(self.workspace),
+                         '--vault-name',name,good=False)
+                self.assertFalse(self.config.exists())
+        self.cli('setup','--source',str(self.source),'--workspace',str(self.workspace),
+                 '--language','xx',good=False)
+        self.assertFalse(self.config.exists())
+
+    def test_english_default_name_and_empty_collection_allow_bounded_retrieval(self):
+        self.original.unlink()
+        vault = self.setup('--language','en')
+        self.assertEqual(vault.name, 'Personal Knowledge')
+        self.assertEqual(self.report()['coverage']['indexed_files'], 0)
+        result = json.loads(self.cli('context','--query','anything').stdout)
+        self.assertEqual(result['evidence'], [])
+        self.assertIn('My Current Focus', result['author_profile'])
+        self.assertTrue((vault/'02_Sources').is_dir())
+
+    def test_explicit_non_china_timezone_is_preserved_and_logs_use_dst_rules(self):
+        self.setup('--language','en','--timezone','America/New_York')
+        before = self.config.read_bytes()
+        config = Settings(self.config)
+        self.assertEqual(config.timezone,'America/New_York')
+        zone = ZoneInfo(config.timezone)
+        self.assertEqual(datetime(2026,1,15,tzinfo=zone).utcoffset(),timedelta(hours=-5))
+        self.assertEqual(datetime(2026,7,15,tzinfo=zone).utcoffset(),timedelta(hours=-4))
+        logged = datetime.fromisoformat(self.report()['time'])
+        self.assertEqual(logged.utcoffset(),logged.astimezone(zone).utcoffset())
+        self.original.write_text('keyword_alpha updated source for timezone test',encoding='utf-8')
+        self.cli('refresh')
+        self.assertEqual(self.config.read_bytes(),before)
+        report = self.report()
+        logged = datetime.fromisoformat(report['time'])
+        self.assertEqual(logged.utcoffset(),logged.astimezone(zone).utcoffset())
+        note = Path(report['note']).read_text(encoding='utf-8')
+        self.assertIn(logged.strftime('%Y-%m-%d %H:%M'),note)
+
+    def test_invalid_timezone_is_rejected_before_config_is_written(self):
+        self.cli('setup','--source',str(self.source),'--workspace',str(self.workspace),
+                 '--timezone','Not/A_Real_Timezone',good=False)
+        self.assertFalse(self.config.exists())
+        self.assertFalse(self.workspace.exists())
+        self.assertFalse((self.base/'outside').exists())
+
+    def test_local_timezone_default_is_named_and_not_inferred_from_language(self):
+        with patch('tzlocal.get_localzone_name',return_value='Europe/London'):
+            self.assertEqual(resolve_timezone(),'Europe/London')
+        self.setup('--language','en')
+        saved = json.loads(self.config.read_text(encoding='utf-8'))
+        self.assertEqual(saved['timezone'],resolve_timezone())
+        self.assertTrue(ZoneInfo(saved['timezone']).key)
 
 if __name__ == '__main__':
     unittest.main()

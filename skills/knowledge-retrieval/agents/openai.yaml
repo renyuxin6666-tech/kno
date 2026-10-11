@@ -1,0 +1,4 @@
+interface:
+  display_name: "Retrieve personal knowledge / 检索我的知识"
+  short_description: "Answer with relevant local evidence and source checks"
+  default_prompt: "Use $knowledge-retrieval to find relevant sources in my linked knowledge workspace before answering."

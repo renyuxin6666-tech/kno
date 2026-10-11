@@ -1,0 +1,4 @@
+interface:
+  display_name: "Maintain personal knowledge / 自动整理知识"
+  short_description: "Review meaningful changes and preserve useful notes"
+  default_prompt: "Use $maintain-knowledge to refresh my linked knowledge workspace and interpret meaningful changes with source links."

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="250" viewBox="0 0 1200 250" role="img" aria-labelledby="title desc">
+  <title id="title">Weekly knowledge upkeep</title>
+  <desc id="desc">A scheduled Codex task refreshes the index, checks changed sources and writes a separate note. No meaningful change means no notification.</desc>
+  <defs><marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#a698bd" stroke-width="1.5"/></marker></defs>
+  <rect width="1200" height="250" rx="18" fill="#1d1926"/>
+  <g font-family="Segoe UI,Arial,Microsoft YaHei,sans-serif">
+    <text x="36" y="39" font-size="17" fill="#e9e1f5">Scheduled Codex upkeep / Codex 定期整理</text>
+    <g fill="#2b2437" stroke="#504160"><rect x="36" y="70" width="230" height="88" rx="12"/><rect x="328" y="70" width="230" height="88" rx="12"/><rect x="620" y="70" width="230" height="88" rx="12"/><rect x="912" y="70" width="252" height="88" rx="12"/></g>
+    <g fill="none" stroke="#a698bd" stroke-width="2" marker-end="url(#a)"><path d="M278 114 H314"/><path d="M570 114 H606"/><path d="M862 114 H898"/></g>
+    <g fill="#eee5fb" font-size="19"><text x="58" y="106">Refresh / 刷新索引</text><text x="350" y="106">Check / 核对变化</text><text x="642" y="106">Write / 留下理解</text><text x="934" y="106">Continue / 继续工作</text></g>
+    <g fill="#b0a2c3" font-size="13"><text x="58" y="136">New files and source versions</text><text x="350" y="136">Read originals and uncertainties</text><text x="642" y="136">A separate dated personal note</text><text x="934" y="136">Notify only when useful</text></g>
+    <text x="36" y="203" fill="#a5c9bc" font-size="15">No meaningful changes? Stay quiet. / 没有实质变化时，保持安静。</text>
+    <text x="36" y="230" fill="#8f829f" font-size="13">Original files and your existing notes are preserved. / 保留原文件和已有个人笔记。</text>
+  </g>
+</svg>

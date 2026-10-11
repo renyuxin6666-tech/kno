@@ -1,12 +1,15 @@
 {
-  "source": "C:/Research",
+  "source": "C:/Knowledge",
   "workspace": ".runtime/workspace",
-  "timezone": "Asia/Shanghai",
+  "language": "zh",
+  "vault_name": "个人知识库",
   "obsidian_exe": "",
   "stable_project_ids": true,
   "categories": {
-    "论文与文献": ["paper", "literature", "论文", "文献"],
-    "实验与开发": ["experiment", "code", "实验", "开发"],
-    "设计实践": ["design", "设计"]
+    "工作与项目": ["work", "project", "client", "工作", "项目", "客户"],
+    "学习与阅读": ["learn", "course", "book", "学习", "课程", "阅读"],
+    "生活与计划": ["life", "travel", "plan", "生活", "旅行", "计划"],
+    "研究与探索": ["research", "experiment", "paper", "研究", "实验", "论文"],
+    "个人记录": ["journal", "note", "reflection", "日记", "笔记", "反思"]
   }
 }

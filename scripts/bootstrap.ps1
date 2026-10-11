@@ -1,14 +1,26 @@
-param(
+﻿param(
     [string]$Source = '',
     [string]$Workspace = '',
     [string]$PythonExe = '',
     [string]$ObsidianExe = '',
+    [ValidateSet('zh','en')][string]$Language = 'zh',
+    [string]$VaultName = '',
+    [string]$TimeZone = '',
     [switch]$SkipDependencies,
     [switch]$SkipOpen
 )
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 $config = Join-Path $repo 'settings.local.json'
+
+function Say([string]$Zh, [string]$En) {
+    if ($Language -eq 'zh') { return $Zh }
+    return $En
+}
+if (Test-Path -LiteralPath $config) {
+    $saved = Get-Content -LiteralPath $config -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($saved.language -in @('zh','en')) { $Language = $saved.language }
+}
 
 function Find-Python {
     $candidates = @()
@@ -65,35 +77,35 @@ function Find-Obsidian {
 
 function Install-Package([string]$Id) {
     $winget = Get-Command winget.exe -ErrorAction SilentlyContinue
-    if (-not $winget) { throw 'Windows Package Manager is unavailable. Install App Installer from Microsoft, then run Start.cmd again.' }
+    if (-not $winget) { throw (Say '请从 Microsoft 安装“应用安装程序”，再运行 Start.cmd。当前系统未找到 Windows 包管理器。' 'Install Microsoft App Installer, then run Start.cmd again. Windows Package Manager is unavailable.') }
     & $winget.Source install --id $Id --exact --source winget --scope user --silent --no-upgrade --accept-source-agreements --accept-package-agreements --disable-interactivity
-    if ($LASTEXITCODE -ne 0) { throw "Installation failed for $Id (exit $LASTEXITCODE). Check the installer output and rerun." }
+    if ($LASTEXITCODE -ne 0) { throw (Say "$Id 安装失败（退出码 $LASTEXITCODE）。请查看安装输出后重试。" "Installation failed for $Id (exit $LASTEXITCODE). Check the output and retry.") }
 }
 
 try {
     $python = Find-Python
     if (-not $python) {
-        Write-Host 'Installing Python for the current Windows user...'
+        Write-Host (Say '正在为当前 Windows 用户安装 Python…' 'Installing Python for the current Windows user...')
         Install-Package 'Python.Python.3.12'
         $python = Find-Python
-        if (-not $python) { throw 'Python was installed but not detected. Reopen this launcher.' }
+        if (-not $python) { throw (Say 'Python 已安装，但暂未找到。请重新打开 Start.cmd。' 'Python was installed but not detected. Reopen Start.cmd.') }
     }
     $obsidian = Find-Obsidian
     if (-not $obsidian) {
-        Write-Host 'Installing Obsidian for the current Windows user...'
+        Write-Host (Say '正在为当前 Windows 用户安装 Obsidian…' 'Installing Obsidian for the current Windows user...')
         Install-Package 'Obsidian.Obsidian'
         $obsidian = Find-Obsidian
-        if (-not $obsidian) { throw 'Obsidian was installed but not detected.' }
+        if (-not $obsidian) { throw (Say 'Obsidian 已安装，但暂未找到。请重新打开 Start.cmd。' 'Obsidian was installed but not detected. Reopen Start.cmd.') }
     }
     if (-not $SkipDependencies) {
         $venv = Join-Path $repo '.runtime\venv'
         $runtime = Join-Path $venv 'Scripts\python.exe'
         if (-not (Test-Path -LiteralPath $runtime)) {
             & $python -m venv $venv
-            if ($LASTEXITCODE -ne 0) { throw 'Could not create the local Python runtime.' }
+            if ($LASTEXITCODE -ne 0) { throw (Say '未能建立本地 Python 运行环境，请查看上方错误。' 'Could not create the local Python runtime; check the error above.') }
         }
         & $runtime -m pip install --disable-pip-version-check -r (Join-Path $repo 'requirements.txt')
-        if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed. Check network access and retry.' }
+        if ($LASTEXITCODE -ne 0) { throw (Say '依赖安装失败，请检查网络后重试。' 'Dependency installation failed. Check network access and retry.') }
         $python = $runtime
     }
     $env:PYTHONUTF8 = '1'
@@ -104,20 +116,23 @@ try {
         if (-not $Source) {
             Add-Type -AssemblyName System.Windows.Forms
             $picker = New-Object System.Windows.Forms.FolderBrowserDialog
-            $picker.Description = 'Choose your research SOURCE folder. Originals stay read-only.'
+            $picker.Description = Say '选择你的资料文件夹：工作、学习、生活或研究资料都可以。原文件只读。' 'Choose a folder of work, learning, life or research material. Originals stay read-only.'
             $picker.ShowNewFolderButton = $false
-            if ($picker.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { throw 'No source folder selected.' }
+            if ($picker.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { throw (Say '尚未选择资料文件夹，可以稍后重新运行 Start.cmd。' 'No source folder selected. Run Start.cmd again when ready.') }
             $Source = $picker.SelectedPath
         }
         if (-not $Workspace) { $Workspace = Join-Path $repo '.runtime\workspace' }
-        & $python $pipeline setup --source $Source --workspace $Workspace --obsidian $obsidian --config $config
+        $setupArguments = @($pipeline, 'setup', '--source', $Source, '--workspace', $Workspace, '--obsidian', $obsidian, '--config', $config, '--language', $Language)
+        if ($VaultName) { $setupArguments += @('--vault-name', $VaultName) }
+        if ($TimeZone) { $setupArguments += @('--timezone', $TimeZone) }
+        & $python @setupArguments
     }
-    if ($LASTEXITCODE -ne 0) { throw 'Knowledge-base build failed; see output above.' }
+    if ($LASTEXITCODE -ne 0) { throw (Say '知识工作台整理失败，请查看上方错误。' 'Knowledge workspace build failed; see the error above.') }
     if (-not $SkipOpen) {
         & $python $pipeline open --config $config
-        if ($LASTEXITCODE -ne 0) { throw 'Build succeeded, but opening Obsidian needs attention; see output above.' }
+        if ($LASTEXITCODE -ne 0) { throw (Say '资料已整理好，Obsidian 打开入口需要处理，请查看上方提示。' 'Material is ready, but opening Obsidian needs attention; see the message above.') }
     }
-    Write-Host 'Done. Your sources, generated navigation, personal notes and coverage report are ready.' -ForegroundColor Green
+    Write-Host (Say '完成。你的个人知识工作台已准备好：项目导航、来源入口、个人笔记和覆盖报告。' 'Done. Your personal knowledge workspace is ready: navigation, source links, personal notes and coverage report.') -ForegroundColor Green
 } catch {
     Write-Host $_.Exception.Message -ForegroundColor Red
     exit 1

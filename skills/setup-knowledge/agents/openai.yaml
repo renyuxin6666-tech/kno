@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set up personal knowledge / 建立个人知识库"
+  short_description: "Connect local material and arrange scheduled upkeep"
+  default_prompt: "Use $setup-knowledge to connect my local material to an Obsidian knowledge workspace and arrange weekly upkeep."
