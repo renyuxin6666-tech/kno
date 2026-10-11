@@ -16,7 +16,8 @@ from install_codex_plugin import (PLUGIN, MARKETPLACE, bind_workspace, export_pa
 class PluginTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.base = Path(self.tmp.name)
+        # Windows TEMP can use an 8.3 alias; compare the same canonical form as the installer.
+        self.base = Path(self.tmp.name).resolve()
         self.repo = self.base / 'source'
         self.home = self.base / 'codex-home'
         self.repo.mkdir()
