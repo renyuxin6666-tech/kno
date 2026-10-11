@@ -1,0 +1,12 @@
+{
+  "source": "C:/Research",
+  "workspace": ".runtime/workspace",
+  "timezone": "Asia/Shanghai",
+  "obsidian_exe": "",
+  "stable_project_ids": true,
+  "categories": {
+    "论文与文献": ["paper", "literature", "论文", "文献"],
+    "实验与开发": ["experiment", "code", "实验", "开发"],
+    "设计实践": ["design", "设计"]
+  }
+}
