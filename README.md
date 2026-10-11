@@ -9,7 +9,7 @@
 <p align="center">Obsidian 保存资料与理解 · Codex 按来源回答 · 定期任务帮你持续整理</p>
 
 <p align="center">
-  <a href="https://github.com/renyuxin6666-tech/obsidian-research-pipeline/actions/workflows/test.yml"><img src="https://github.com/renyuxin6666-tech/obsidian-research-pipeline/actions/workflows/test.yml/badge.svg" alt="管线测试"></a>
+  <a href="https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace/actions/workflows/test.yml"><img src="https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace/actions/workflows/test.yml/badge.svg" alt="管线测试"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-467B70" alt="MIT License"></a>
   <img src="https://img.shields.io/badge/vault-中文%20%2F%20English-7562A8" alt="中文与英文知识库">
 </p>
@@ -28,7 +28,7 @@
 
 在能访问本机文件夹的 **Codex 桌面任务** 中，发送这一句话：
 
-> 安装 https://github.com/renyuxin6666-tech/obsidian-research-pipeline，接入我的「资料文件夹」，用于长期知识与项目管理，并按我的时区每周日 20:00 自动整理。
+> 安装 https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace，接入我的「资料文件夹」，用于长期知识与项目管理，并按我的时区每周日 20:00 自动整理。
 
 把「资料文件夹」换成实际路径；还没选好时，直接让 Codex 帮你选择。它会复用已有软件，建立知识库，核对打开结果，再在支持本机定期任务的客户端中创建或复用任务。首次安装需要网络、可用的 Python / Obsidian 安装渠道及相应权限；遇到这些条件不足时，Codex 会说明具体缺口。
 
@@ -37,7 +37,7 @@
 <details>
 <summary>不用 Codex，直接在 Windows 建库</summary>
 
-1. 从 [Releases](https://github.com/renyuxin6666-tech/obsidian-research-pipeline/releases/latest) 下载 ZIP，解压到固定的可写文件夹。
+1. 从 [Releases](https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace/releases/latest) 下载 ZIP，解压到固定的可写文件夹。
 2. 双击 **Start.cmd**，选择资料文件夹。已有 Python 3.11+ 和 Obsidian 会被复用；缺少时尝试通过 Windows Package Manager 安装。
 3. 首页打开后，按 **Ctrl + Shift + F** 搜索，在 **我的笔记** 中保存自己的理解。
 
@@ -120,7 +120,7 @@ Agent 会检查原文件是否仍存在、摘录是否匹配来源哈希，再�
 
 **能完整理解扫描 PDF、图片和 CAD 吗？** 当前无 OCR、语义检索或完整的图像 / 模型理解。PDF、Word、幻灯片等做有上限的文字提取，覆盖报告会记录缺口；重要结论需要原文核对。
 
-**只能用来做研究吗？** 工作、学习、创作、生活和研究都适用。仓库地址保留早期名称，方便现有安装继续更新；新知识库采用通用命名。
+**只能用来做研究吗？** 工作、学习、创作、生活和研究都适用。项目与 GitHub 仓库已采用通用名称 Obsidian Knowledge Workspace；既有本机知识库可以继续使用原来的目录、配置和定期任务。
 
 **支持哪些系统？** 双击安装入口针对 Windows 10/11。Python 核心管线在 Windows / Linux 的 CI 中验证；其他系统的软件安装与桌面入口需要自行配置。缺少软件的 WinGet 分支已实现，尚未在全新 Windows 电脑完整验收。
 

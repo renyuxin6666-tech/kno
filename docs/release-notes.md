@@ -5,12 +5,13 @@
 ## v0.2.0 — 个人知识工作台 / Personal knowledge workspace
 
 - 从研究资料工具拓展为工作、学习、创作、生活计划与研究的长期个人知识工作台。
+- GitHub 仓库重命名为 [`obsidian-knowledge-workspace`](https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace)；现有本机文件夹、知识库路径、配置与定期任务继续使用。
 - 增加中文、英文 README，真实脱敏界面图与流程说明；最先展示一句话交给 Codex 安装的入口。
 - 新建知识库支持中文 / 英文页面、模板与指引；保留原有研究库目录，避免链接和笔记被改名。
 - 提供 Codex 插件包、仓库 marketplace 与安装、检索、定期整理工作流。仓库分发不等于通用公开 Plugins Directory 上架。
 - 定期整理复用已有任务，按本机工作区核对变化，分别保存自动日志与 Agent 理解。
 
-Expanded from a research-only tool into a personal workspace for work, learning, creative projects, planning and research. Added bilingual documentation, redacted real screenshots, new-vault language selection and a repository-distributed Codex plugin with setup, retrieval and upkeep workflows. Existing vault paths are preserved.
+Expanded from a research-only tool into a personal workspace for work, learning, creative projects, planning and research. Added bilingual documentation, redacted real screenshots, new-vault language selection and a repository-distributed Codex plugin with setup, retrieval and upkeep workflows. The GitHub repository is now `obsidian-knowledge-workspace`. Existing local folders, vault paths, settings and schedules are preserved.
 
 ## v0.1.1 — 中文路径打开修复 / Chinese-path opening fix
 

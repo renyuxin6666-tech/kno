@@ -1,6 +1,6 @@
 # Obsidian Knowledge Workspace
 
-This repository packages a general personal knowledge and project workspace for work, learning, creative projects, personal planning and research. The repository URL keeps its original name for compatibility. New vaults support Chinese and English; existing vaults retain their paths and personal notes.
+This repository packages a general personal knowledge and project workspace for work, learning, creative projects, personal planning and research. Its public name is `obsidian-knowledge-workspace`. Existing local checkout folders do not need renaming. New vaults support Chinese and English; existing vaults retain their paths and personal notes.
 
 ## Setup and use
 

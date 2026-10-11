@@ -9,7 +9,7 @@
 <p align="center">Keep sources and insights in Obsidian · Let Codex answer from evidence · Review changes on a schedule</p>
 
 <p align="center">
-  <a href="https://github.com/renyuxin6666-tech/obsidian-research-pipeline/actions/workflows/test.yml"><img src="https://github.com/renyuxin6666-tech/obsidian-research-pipeline/actions/workflows/test.yml/badge.svg" alt="Pipeline tests"></a>
+  <a href="https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace/actions/workflows/test.yml"><img src="https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace/actions/workflows/test.yml/badge.svg" alt="Pipeline tests"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-467B70" alt="MIT License"></a>
   <img src="https://img.shields.io/badge/vault-English%20%2F%20中文-7562A8" alt="English and Chinese vaults">
 </p>
@@ -28,7 +28,7 @@
 
 In a **local Codex desktop task** with access to your files, send one message:
 
-> Install https://github.com/renyuxin6666-tech/obsidian-research-pipeline, connect my “files folder” for long-term knowledge and project management, create an English workspace, and organize it every Sunday at 20:00 in my time zone.
+> Install https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace, connect my “files folder” for long-term knowledge and project management, create an English workspace, and organize it every Sunday at 20:00 in my time zone.
 
 Replace “files folder” with its actual path, or ask Codex to help select one. It reuses installed software, builds the vault, checks that it opens, and creates or updates a task where the client supports local scheduling. Initial setup needs network access, available Python / Obsidian installation methods, and the relevant permissions. Codex should explain any missing requirement.
 
@@ -37,7 +37,7 @@ Replace “files folder” with its actual path, or ask Codex to help select one
 <details>
 <summary>Build a vault on Windows without Codex</summary>
 
-1. Download a ZIP from [Releases](https://github.com/renyuxin6666-tech/obsidian-research-pipeline/releases/latest) and extract it into a stable, writable folder.
+1. Download a ZIP from [Releases](https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace/releases/latest) and extract it into a stable, writable folder.
 2. For an English vault, run `powershell -NoProfile -File scripts/bootstrap.ps1 -Language en`. **Start.cmd** uses Chinese by default. Select your source folder.
 3. When the home page opens, use **Ctrl + Shift + F** to search and save your own insights under **My Notes**.
 
@@ -118,7 +118,7 @@ For index updates only, **Enable-Weekly.cmd** creates a Windows task with no mod
 
 **Does it fully understand scans, images or CAD?** OCR, semantic retrieval and complete image / model understanding are not implemented. Text extraction for PDFs, Word and slides has limits, recorded in the coverage report. Consequential conclusions need original-source checks.
 
-**Is it just for research?** It covers work, learning, creative projects, personal planning and research. The repository URL retains the early name for update compatibility; new vaults use general names.
+**Is it just for research?** It covers work, learning, creative projects, personal planning and research. The project and GitHub repository now use the general name Obsidian Knowledge Workspace. Existing local vaults keep working with their current folders, settings and schedules.
 
 **Which systems are supported?** Desktop launchers target Windows 10/11. The Python pipeline is tested in Windows / Linux CI; installation and desktop integration on other systems need manual setup. The missing-software WinGet branch exists but has not completed acceptance testing on a fresh Windows computer.
 

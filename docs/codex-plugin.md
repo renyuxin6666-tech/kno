@@ -6,7 +6,7 @@
 
 在有本机文件权限的 Codex 对话里说：
 
-> 安装 https://github.com/renyuxin6666-tech/obsidian-research-pipeline，接入我的「资料文件夹」，作为长期知识和工作项目管理工具，每周日 20:00 自动整理。
+> 安装 https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace，接入我的「资料文件夹」，作为长期知识和工作项目管理工具，每周日 20:00 自动整理。
 
 把「资料文件夹」替换成自己的路径。已有知识库时提供它的工作区或 `settings.local.json`，Codex 会复用，避免重复导入。首次建立只需确定资料目录；输出位置和中文/英文可从当前请求推断，不明确时再询问。
 
@@ -33,7 +33,7 @@ python scripts/install_codex_plugin.py install
 标准仓库来源命令也可使用：
 
 ```text
-codex plugin marketplace add renyuxin6666-tech/obsidian-research-pipeline
+codex plugin marketplace add renyuxin6666-tech/obsidian-knowledge-workspace
 ```
 
 这属于仓库/本机来源分发，尚未代表被通用公共插件目录审核收录。支持能力与刷新要求以当前 Codex 版本为准。[官方打包与来源文档](https://developers.openai.com/plugins/build/plugins)
@@ -55,7 +55,7 @@ python scripts/install_codex_plugin.py workspaces
 
 Say this in a Codex conversation with access to your local files:
 
-> Install https://github.com/renyuxin6666-tech/obsidian-research-pipeline, connect my “material folder” as a long-term personal knowledge and project workspace, and organize it every Sunday at 20:00.
+> Install https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace, connect my “material folder” as a long-term personal knowledge and project workspace, and organize it every Sunday at 20:00.
 
 Replace the folder with your own path. Supply an existing workspace or its `settings.local.json` to reconnect without importing another vault. The three skills handle setup (`$setup-knowledge`), evidence retrieval (`$knowledge-retrieval`) and meaningful upkeep (`$maintain-knowledge`). They support learning, work, decisions, creative projects and research in your chosen material language.
 
