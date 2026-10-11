@@ -51,7 +51,7 @@ def write(rel, content, once=False):
     if p.exists():
         # Older Windows output used CRLF, but state hashes used LF. Normalize only
         # newlines so substantive manual edits remain protected.
-        old=hashlib.sha256(p.read_text(encoding='utf-8').encode('utf-8')).hexdigest()
+        old=hashlib.sha256(p.read_bytes().replace(b'\r\n', b'\n')).hexdigest()
         if old==digest:
             state['outputs'][rel]=digest
             return True

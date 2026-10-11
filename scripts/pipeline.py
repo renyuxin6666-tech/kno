@@ -3,10 +3,12 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sqlite3
 import subprocess
 import sys
 from contextlib import contextmanager
+from itertools import islice
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import quote
@@ -129,11 +131,18 @@ def refresh(config):
             warnings = {k: coverage.get(k) for k in ('scan_errors', 'protected_modified_notes')}
             failure_statuses = {k: v for k, v in coverage['extraction_statuses'].items()
                                 if k in ('extraction_error', 'timeout', 'source_changed_during_read') and v}
+            previous_path = config.data / 'maintenance-latest.json'
+            previous = json.loads(previous_path.read_text(encoding='utf-8')) if previous_path.exists() else {}
+            issues = {'warnings': warnings, 'extraction_failures': failure_statuses}
+            prior_issues = {k: previous.get(k) for k in issues}
+            issues_changed = issues != prior_issues
+            has_issues = bool(warnings['scan_errors'] or warnings['protected_modified_notes'] or failure_statuses)
             result = {'run_id': run_id, 'time': now.isoformat(), 'baseline_initialized': initial,
                       'changes': counts, 'sample': sample, 'all_changes': str(run_dir / 'changes.jsonl'),
                       'coverage': {k: coverage[k] for k in ('indexed_files', 'searchable_documents', 'extraction_statuses')},
                       'warnings': warnings, 'extraction_failures': failure_statuses,
-                      'notification_needed': bool(sum(counts.values()) or warnings['scan_errors'] or warnings['protected_modified_notes'] or failure_statuses),
+                      'issues_changed': issues_changed,
+                      'notification_needed': bool(sum(counts.values()) or (has_issues and issues_changed)),
                       'note': None, 'state_basis': 'size and modification time; no automatic author judgment'}
             if initial or result['notification_needed']:
                 folder = config.vault / '03_我的笔记' / '自动整理'
@@ -185,7 +194,20 @@ def search(config, query, project='', limit=8, paths=False):
                 if len(results) >= limit:
                     break
     else:
-        for note in sorted((config.vault / '02_资料').glob('*/*.md')):
+        folders = sorted(p for p in (config.vault / '02_资料').iterdir() if p.is_dir())
+        selected = []
+        for folder in folders:
+            notes = sorted(folder.glob('*.md'))
+            if project and notes:
+                # Each generated folder belongs to one project. Read only a bounded
+                # metadata prefix before loading any of its potentially large texts.
+                with notes[0].open(encoding='utf-8') as f:
+                    prefix = ''.join(islice(f, 15))
+                match = re.search(r'^project: (.+)$', prefix, re.M)
+                if not match or project.casefold() not in str(json.loads(match[1])).casefold():
+                    continue
+            selected.extend(notes)
+        for note in selected:
             text = note.read_text(encoding='utf-8')
             front = {}
             for line in text.splitlines()[:15]:

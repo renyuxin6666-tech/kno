@@ -180,5 +180,25 @@ class PipelineTests(unittest.TestCase):
         result = extract(pdf)
         self.assertEqual(result['status'], 'no_extractable_text')
 
+    def test_legacy_windows_newlines_with_embedded_carriage_return(self):
+        self.original.write_bytes(b'keyword_alpha\rlone carriage return\nnormal newline\n')
+        vault = self.setup()
+        note = next((vault / '02_资料').glob('*/*.md'))
+        # Simulate the original Windows writer without changing its recorded LF hash.
+        note.write_bytes(note.read_bytes().replace(b'\n', b'\r\n'))
+        self.original.write_bytes(b'keyword_alpha\rrevised source\nnormal newline\n')
+        self.cli('refresh')
+        self.assertEqual(self.report()['warnings']['protected_modified_notes'], [])
+        self.assertIn(b'revised source', note.read_bytes())
+
+    def test_unchanged_known_extraction_failure_does_not_repeat_notification(self):
+        (self.project / 'broken.pdf').write_bytes(b'synthetic invalid PDF')
+        self.setup()
+        self.assertTrue(self.report()['notification_needed'])
+        self.assertEqual(self.report()['extraction_failures'], {'extraction_error': 1})
+        self.cli('refresh')
+        self.assertFalse(self.report()['notification_needed'])
+        self.assertFalse(self.report()['issues_changed'])
+
 if __name__ == '__main__':
     unittest.main()
