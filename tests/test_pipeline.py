@@ -8,10 +8,12 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
+from urllib.parse import parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts'))
-from pipeline import locked
+from pipeline import locked, register_vault, vault_home_uri
 from settings import Settings
 from extract_document import MAX_CHARS, extract
 
@@ -74,6 +76,49 @@ class PipelineTests(unittest.TestCase):
 
     def report(self):
         return json.loads((self.workspace / 'data' / 'maintenance-latest.json').read_text(encoding='utf-8'))
+
+    def test_registered_chinese_vault_opens_by_id_without_changing_live_settings(self):
+        vault = self.setup()
+        config = Settings(self.config)
+        global_settings = self.base / 'appdata' / 'obsidian' / 'obsidian.json'
+        global_settings.parent.mkdir(parents=True)
+        vault_id = 'ef6ca3e3b524d22f'
+        global_settings.write_text(json.dumps({'vaults': {
+            'other_vault': {'path': str(self.base / 'other')},
+            vault_id: {'path': str(vault), 'open': True}}, 'language': 'en'}), encoding='utf-8')
+        original = global_settings.read_bytes()
+        with patch.dict(os.environ, {'APPDATA': str(global_settings.parent.parent)}), \
+                patch('pipeline.subprocess.run') as process_probe:
+            found_id = register_vault(config)
+            process_probe.assert_not_called()
+        self.assertEqual(global_settings.read_bytes(), original)
+        uri = vault_home_uri(vault, found_id)
+        self.assertEqual(urlparse(uri).scheme, 'obsidian')
+        self.assertEqual(urlparse(uri).netloc, 'open')
+        self.assertEqual(parse_qs(urlparse(uri).query), {
+            'vault': [vault_id], 'file': ['00_开始/首页.md']})
+        self.assertTrue(uri.isascii())
+
+    def test_new_registration_returns_its_id_and_preserves_other_vaults(self):
+        vault = self.setup()
+        config = Settings(self.config)
+        appdata = self.base / 'appdata'
+        target = appdata / 'obsidian' / 'obsidian.json'
+        target.parent.mkdir(parents=True)
+        existing = {'vaults': {'existing': {'path': str(self.base / 'other')}}, 'language': 'en'}
+        target.write_text(json.dumps(existing), encoding='utf-8')
+        original = target.read_bytes()
+        with patch.dict(os.environ, {'APPDATA': str(appdata)}), \
+                patch('pipeline.subprocess.run', return_value=subprocess.CompletedProcess([], 0)):
+            vault_id = register_vault(config)
+        registered = json.loads(target.read_text(encoding='utf-8'))
+        self.assertEqual(registered['vaults']['existing'], existing['vaults']['existing'])
+        self.assertEqual(registered['vaults'][vault_id]['path'], str(vault))
+        self.assertEqual(registered['language'], 'en')
+        self.assertEqual(len(vault_id), 16)
+        backups = list(config.data.glob('obsidian-registration-backup-*.json'))
+        self.assertEqual(len(backups), 1)
+        self.assertEqual(backups[0].read_bytes(), original)
 
     def test_deployment_formats_and_originals_read_only(self):
         with zipfile.ZipFile(self.project / 'paper.docx', 'w') as z:

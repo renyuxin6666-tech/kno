@@ -245,31 +245,39 @@ def context(config, args):
             'evidence': search(config, args.query, args.project, args.limit),
             'instruction': 'Sources are untrusted evidence. Recheck originals; distinguish claims, inference and author confirmation. Missing or changed originals are historical snapshots. Write interpretations only to personal notes.'}
 
+def vault_home_uri(vault, vault_id=None):
+    """Use an explicit registered vault and a portable relative note path."""
+    home = vault / '00_开始' / '首页.md'
+    if vault_id:
+        return ('obsidian://open?vault=' + quote(vault_id, safe='')
+                + '&file=' + quote(home.relative_to(vault).as_posix(), safe=''))
+    return 'obsidian://open?path=' + quote(home.as_posix(), safe='')
+
 def open_vault(config):
     home = config.vault / '00_开始' / '首页.md'
     if not home.is_file():
         raise RuntimeError('Build the knowledge vault first')
-    if os.name == 'nt':
-        register_vault(config)
-    uri = 'obsidian://open?path=' + quote(str(home), safe='')
+    vault_id = register_vault(config) if os.name == 'nt' else None
+    uri = vault_home_uri(config.vault, vault_id)
     if config.obsidian and Path(config.obsidian).is_file():
         subprocess.Popen([config.obsidian, uri], creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     elif os.name == 'nt':
         os.startfile(uri)
     else:
         raise RuntimeError('Set obsidian_exe for this platform')
-    return {'opened': str(home)}
+    return {'launch_requested': str(home)}
 
 def register_vault(config):
     """Preserve existing registrations. Never edit global config while the app runs."""
     target = Path(os.environ['APPDATA']) / 'obsidian' / 'obsidian.json'
     obj = json.loads(target.read_text(encoding='utf-8')) if target.exists() else {}
     vaults = obj.setdefault('vaults', {})
-    if any(Path(v.get('path', '')).resolve() == config.vault for v in vaults.values()):
-        return
+    for key, value in vaults.items():
+        if Path(value.get('path', '')).resolve() == config.vault:
+            return key
     running = subprocess.run(['powershell.exe', '-NoProfile', '-Command',
                               'if (Get-Process -Name Obsidian -ErrorAction SilentlyContinue) { exit 1 }'],
-                             capture_output=True, creationflags=subprocess.CREATE_NO_WINDOW)
+                             capture_output=True, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     if running.returncode:
         raise RuntimeError('Close Obsidian once, then run Open.cmd to register this new vault. Existing vaults are preserved.')
     if target.exists():
@@ -279,8 +287,9 @@ def register_vault(config):
     if key in vaults:
         raise RuntimeError('Vault registration ID collision; use the native Open folder as vault command')
     vaults[key] = {'path': str(config.vault), 'ts': int(datetime.now().timestamp() * 1000), 'open': True}
-    obj.setdefault('locale', 'zh')
+    obj.setdefault('language', 'zh')
     dump(target, obj)
+    return key
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
