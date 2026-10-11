@@ -16,7 +16,7 @@ ALLOWED_FILES = {'README.md', 'README.en.md', 'plugin.json', '.agents/plugins/ma
                  'requirements.txt', 'settings.example.json', 'Start.cmd', 'Refresh.cmd',
                  'Open.cmd', 'Enable-Weekly.cmd'}
 REVIEWED_IMAGES = {'docs/assets/workspace-redacted.png', 'docs/assets/map-redacted.png',
-                   'docs/assets/graph-redacted.png'}
+                   'docs/assets/graph-redacted.png', 'docs/assets/launch-video.png'}
 
 def png_metadata(blob):
     """Check a reviewed PNG container; never treat raw pixels as UTF-8 text."""

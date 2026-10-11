@@ -22,6 +22,14 @@
 
 <p align="center"><a href="#开始使用">开始使用</a> · <a href="#看看整理后的样子">实际界面</a> · <a href="#让-codex-接着你的积累工作">与 Codex 一起工作</a> · <a href="#每周自动整理">定期整理</a> · <a href="#常见问题">常见问题</a></p>
 
+## 30 秒认识 Kno
+
+[![Kno 发布视频：把散落资料变成可以继续使用的积累](docs/assets/launch-video.png)](https://github.com/renyuxin6666-tech/kno/releases/download/v0.2.1/kno-launch-16x9.mp4)
+
+**点击封面观看或下载发布视频。** [带中文字幕主版](https://github.com/renyuxin6666-tech/kno/releases/download/v0.2.1/kno-launch-16x9.mp4) · [无烧录字幕版](https://github.com/renyuxin6666-tech/kno/releases/download/v0.2.1/kno-launch-16x9-clean.mp4) · [中文字幕 SRT](https://github.com/renyuxin6666-tech/kno/releases/download/v0.2.1/kno-launch.zh-CN.srt)
+
+两版均为 1080p、30 fps、30.5 秒，带中文旁白和配乐。[视频说明](docs/launch-video.md)
+
 ## 开始使用
 
 在能访问本机文件夹的 **Codex 桌面任务** 中，发送这一句话：

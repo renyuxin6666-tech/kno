@@ -2,6 +2,15 @@
 
 [简体中文首页](../README.md) · [English home](../README.en.md)
 
+## v0.2.1 — 笔记保护修复与发布视频 / Note protection fix and launch video
+
+- 统一生成内容、磁盘文件与新清单的换行哈希口径，兼容旧清单，避免 CRLF/LF 导致误保护。
+- 保留真实正文修改、空格、Tab、额外换行和孤立回车；未知生成来源的不同内容继续受保护。
+- 增加针对旧清单迁移及真实手工修改的回归验证。
+- 中英文 README 增加 30 秒发布视频入口。Release 提供带中文字幕主版、无烧录字幕版与 SRT；原视频片尾保留 v0.2.0。
+
+Canonicalizes CRLF/LF for generated-note hashes while preserving substantive edits and safely accepting matching legacy state hashes. Adds regression coverage for migration and handwritten changes, and links the launch video from both READMEs. Video files are published as Release assets; the original end card still shows v0.2.0.
+
 ## v0.2.0 — Kno 个人知识工作台 / Kno personal knowledge workspace
 
 - 从研究资料工具拓展为工作、学习、创作、生活计划与研究的长期个人知识工作台。

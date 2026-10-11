@@ -31,6 +31,7 @@ PUBLIC_PATHS = frozenset({
     'docs/privacy.md', 'docs/privacy.en.md', 'docs/release-notes.md',
     'docs/assets/README.md', 'docs/assets/hero.svg', 'docs/assets/weekly-flow.svg',
     'docs/assets/workspace-redacted.png', 'docs/assets/map-redacted.png', 'docs/assets/graph-redacted.png',
+    'docs/assets/launch-video.png', 'docs/launch-video.md',
 })
 
 

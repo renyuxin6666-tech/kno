@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import runpy
 import subprocess
 import sys
 import tempfile
@@ -78,6 +79,13 @@ class PipelineTests(unittest.TestCase):
 
     def report(self):
         return json.loads((self.workspace / 'data' / 'maintenance-latest.json').read_text(encoding='utf-8'))
+
+    def writer(self):
+        """Load the real writer with a temporary config; never read the live vault."""
+        self.config.write_text(json.dumps({'source': str(self.source),
+                                          'workspace': str(self.workspace)}), encoding='utf-8')
+        with patch.dict(os.environ, {'KNOWLEDGE_CONFIG': str(self.config)}):
+            return runpy.run_path(str(ROOT / 'scripts' / 'build_vault.py'), run_name='writer_test')
 
     def test_registered_chinese_vault_opens_by_id_without_changing_live_settings(self):
         vault = self.setup()
@@ -236,7 +244,243 @@ class PipelineTests(unittest.TestCase):
         self.original.write_bytes(b'keyword_alpha\rrevised source\nnormal newline\n')
         self.cli('refresh')
         self.assertEqual(self.report()['warnings']['protected_modified_notes'], [])
-        self.assertIn(b'revised source', note.read_bytes())
+        self.assertTrue(note.read_bytes().endswith(
+            b'```text\nkeyword_alpha\rrevised source\nnormal newline\n\n```\n'))
+
+    def test_generated_note_hash_normalizes_crlf_without_stripping_other_bytes(self):
+        writer = self.writer()
+        rel = '02_资料/Synthetic/note.md'
+        content = 'Header\r\nBody\rlone \t\r\nEnd\n\n'
+        expected = content.encode('utf-8')
+        self.assertTrue(writer['write'](rel, content))
+        self.assertEqual((writer['VAULT'] / rel).read_bytes(), expected)
+        self.assertEqual(writer['state']['outputs'][rel],
+                         hashlib.sha256(expected.replace(b'\r\n', b'\n')).hexdigest())
+        self.assertEqual(writer['state']['output_hash_modes'][rel], 'crlf_to_lf_v1')
+        self.assertEqual(writer['conflicts'], [])
+
+    def test_equivalent_crlf_note_adopts_hash_without_rewriting_bytes_or_mtime(self):
+        writer = self.writer()
+        rel = '02_资料/Synthetic/note.md'
+        note = writer['VAULT'] / rel
+        note.parent.mkdir(parents=True)
+        raw = b'Header\r\nBody\rlone\r\nEnd\n'
+        canonical = b'Header\nBody\rlone\nEnd\n'
+        for prior in ('canonical', 'raw', 'missing', 'null', 'unknown'):
+            with self.subTest(prior=prior):
+                note.write_bytes(raw)
+                before = note.stat().st_mtime_ns
+                modes = writer['state'].setdefault('output_hash_modes', {})
+                modes.pop(rel, None)
+                if prior == 'missing':
+                    writer['state']['outputs'].pop(rel, None)
+                else:
+                    recorded = canonical if prior == 'canonical' else raw
+                    writer['state']['outputs'][rel] = hashlib.sha256(recorded).hexdigest()
+                    if prior == 'canonical':
+                        modes[rel] = 'crlf_to_lf_v1'
+                    elif prior in ('null', 'unknown'):
+                        modes[rel] = None if prior == 'null' else 'unknown_v2'
+                self.assertTrue(writer['write'](rel, canonical.decode('utf-8')))
+                self.assertEqual(note.read_bytes(), raw)
+                self.assertEqual(note.stat().st_mtime_ns, before)
+                self.assertEqual(writer['state']['outputs'][rel], hashlib.sha256(canonical).hexdigest())
+                self.assertEqual(writer['state']['output_hash_modes'][rel], 'crlf_to_lf_v1')
+                self.assertEqual(writer['conflicts'], [])
+
+    def test_raw_legacy_hash_updates_state_without_normalizing_written_content(self):
+        writer = self.writer()
+        rel = '02_资料/Synthetic/note.md'
+        note = writer['VAULT'] / rel
+        note.parent.mkdir(parents=True)
+        raw = b'Header\nOld source\r\nMore text\rlone\r\n'
+        note.write_bytes(raw)
+        writer['state']['outputs'][rel] = hashlib.sha256(raw).hexdigest()
+        writer['state']['outputs']['untouched.md'] = 'legacy_hash'
+        content = 'Header\nRevised source\r\nMore text\rlone\r\n'
+        expected = content.encode('utf-8')
+        self.assertTrue(writer['write'](rel, content))
+        self.assertEqual(note.read_bytes(), expected)
+        self.assertEqual(writer['state']['outputs'][rel],
+                         hashlib.sha256(expected.replace(b'\r\n', b'\n')).hexdigest())
+        self.assertEqual(writer['state']['output_hash_modes'], {rel: 'crlf_to_lf_v1'})
+        self.assertEqual(writer['state']['outputs']['untouched.md'], 'legacy_hash')
+        self.assertEqual(writer['conflicts'], [])
+
+    def test_raw_legacy_manifest_with_internal_crlf_updates_after_source_change(self):
+        vault = self.setup()
+        note = next((vault / '02_资料').glob('*/*.md'))
+        rel = note.relative_to(vault).as_posix()
+        # Legacy extracts mixed LF metadata with CRLF returned in cached bodies.
+        marker = '\n## 来源正文\n\n'.encode('utf-8')
+        header, body = note.read_bytes().split(marker, 1)
+        raw = header + marker + body.replace(b'\n', b'\r\n')
+        note.write_bytes(raw)
+        state_path = self.workspace / 'data' / 'generation-state.json'
+        state = json.loads(state_path.read_text(encoding='utf-8'))
+        state['outputs'][rel] = hashlib.sha256(raw).hexdigest()
+        state['output_hash_modes'].pop(rel)
+        state_path.write_text(json.dumps(state), encoding='utf-8')
+        self.original.write_bytes(b'keyword_alpha\rrevised legacy source\nnormal newline\n')
+        self.cli('refresh')
+        updated = note.read_bytes()
+        self.assertTrue(updated.endswith(
+            b'```text\nkeyword_alpha\rrevised legacy source\nnormal newline\n\n```\n'))
+        self.assertNotIn(b'\r\n', updated)
+        self.assertEqual(self.report()['warnings']['protected_modified_notes'], [])
+        state = json.loads(state_path.read_text(encoding='utf-8'))
+        self.assertEqual(state['outputs'][rel], hashlib.sha256(updated).hexdigest())
+        self.assertEqual(state['output_hash_modes'][rel], 'crlf_to_lf_v1')
+
+    def test_manual_body_edits_in_lf_and_crlf_survive_source_changes_byte_for_byte(self):
+        vault = self.setup()
+        note = next((vault / '02_资料').glob('*/*.md'))
+        rel = note.relative_to(vault).as_posix()
+        baseline = note.read_bytes()
+        state_path = self.workspace / 'data' / 'generation-state.json'
+        state = json.loads(state_path.read_text(encoding='utf-8'))
+        prior = state['outputs'][rel]
+        mode = state['output_hash_modes'][rel]
+        for newline in (b'\n', b'\r\n'):
+            with self.subTest(newline=newline):
+                manual = baseline.replace(b'keyword_alpha', b'manual_author_decision').replace(b'\n', newline)
+                note.write_bytes(manual)
+                self.original.write_bytes(b'keyword_alpha revised original source ' + repr(newline).encode())
+                self.cli('refresh')
+                self.assertEqual(note.read_bytes(), manual)
+                self.assertIn(rel, self.report()['warnings']['protected_modified_notes'])
+                state = json.loads(state_path.read_text(encoding='utf-8'))
+                self.assertEqual(state['outputs'][rel], prior)
+                self.assertEqual(state['output_hash_modes'][rel], mode)
+
+    def test_lone_cr_whitespace_and_extra_final_newline_edits_stay_protected(self):
+        vault = self.setup()
+        note = next((vault / '02_资料').glob('*/*.md'))
+        rel = note.relative_to(vault).as_posix()
+        baseline = note.read_bytes()
+        edits = {
+            'lone_cr': baseline.replace(b'keyword_alpha', b'keyword_\ralpha'),
+            'space_tab': baseline.replace(b'keyword_alpha', b'keyword_alpha \t'),
+            'extra_final_newline': baseline + b'\n',
+        }
+        for label, manual in edits.items():
+            with self.subTest(edit=label):
+                note.write_bytes(manual)
+                self.original.write_bytes(b'keyword_alpha changed original source for ' + label.encode())
+                self.cli('refresh')
+                self.assertEqual(note.read_bytes(), manual)
+                self.assertIn(rel, self.report()['warnings']['protected_modified_notes'])
+
+    def test_existing_different_note_without_recorded_hash_is_protected(self):
+        vault = self.setup()
+        note = next((vault / '02_资料').glob('*/*.md'))
+        rel = note.relative_to(vault).as_posix()
+        manual = note.read_bytes().replace(b'keyword_alpha', b'untracked_author_decision')
+        note.write_bytes(manual)
+        state_path = self.workspace / 'data' / 'generation-state.json'
+        state = json.loads(state_path.read_text(encoding='utf-8'))
+        state['outputs'].pop(rel)
+        state['output_hash_modes'].pop(rel)
+        state_path.write_text(json.dumps(state), encoding='utf-8')
+        self.original.write_bytes(b'keyword_alpha revised source with no trusted note hash')
+        self.cli('refresh')
+        self.assertEqual(note.read_bytes(), manual)
+        self.assertIn(rel, self.report()['warnings']['protected_modified_notes'])
+        state = json.loads(state_path.read_text(encoding='utf-8'))
+        self.assertNotIn(rel, state['outputs'])
+        self.assertNotIn(rel, state['output_hash_modes'])
+
+    def test_adjacent_lone_cr_is_stable_across_writes_and_state_reload(self):
+        writer = self.writer()
+        rel = '02_资料/Synthetic/note.md'
+        raw = b'A\r\r\nB\n'
+        canonical = b'A\r\nB\n'
+        self.assertTrue(writer['write'](rel, raw.decode('utf-8')))
+        note = writer['VAULT'] / rel
+        self.assertEqual(note.read_bytes(), raw)
+        self.assertEqual(writer['state']['outputs'][rel], hashlib.sha256(canonical).hexdigest())
+        self.assertEqual(writer['state']['output_hash_modes'][rel], 'crlf_to_lf_v1')
+        writer['state_path'].parent.mkdir(parents=True)
+        writer['state_path'].write_text(json.dumps(writer['state']), encoding='utf-8')
+        writer = self.writer()
+        before = note.stat().st_mtime_ns
+        for _ in range(2):
+            self.assertTrue(writer['write'](rel, raw.decode('utf-8')))
+            self.assertEqual(note.read_bytes(), raw)
+            self.assertEqual(note.stat().st_mtime_ns, before)
+        self.assertEqual(writer['conflicts'], [])
+
+    def test_reloaded_canonical_mode_protects_deleted_adjacent_lone_cr(self):
+        writer = self.writer()
+        rel = '02_资料/Synthetic/note.md'
+        raw = b'A\r\r\nB\n'
+        self.assertTrue(writer['write'](rel, raw.decode('utf-8')))
+        writer['state_path'].parent.mkdir(parents=True)
+        writer['state_path'].write_text(json.dumps(writer['state']), encoding='utf-8')
+        note = writer['VAULT'] / rel
+        manual = b'A\r\nB\n'
+        note.write_bytes(manual)
+        writer = self.writer()
+        before_state = json.loads(json.dumps(writer['state']))
+        before_mtime = note.stat().st_mtime_ns
+        # This exact collision with the old canonical hash must not enable raw fallback.
+        self.assertEqual(hashlib.sha256(manual).hexdigest(), writer['state']['outputs'][rel])
+        for desired in (raw, b'A\r\r\nRevised source B\n'):
+            with self.subTest(desired=desired):
+                self.assertFalse(writer['write'](rel, desired.decode('utf-8')))
+                self.assertEqual(note.read_bytes(), manual)
+                self.assertEqual(note.stat().st_mtime_ns, before_mtime)
+                self.assertEqual(writer['state'], before_state)
+                self.assertIn(rel, writer['conflicts'])
+
+    def test_unknown_hash_modes_do_not_authorize_changed_output(self):
+        writer = self.writer()
+        rel = '02_资料/Synthetic/note.md'
+        note = writer['VAULT'] / rel
+        note.parent.mkdir(parents=True)
+        raw = b'A\r\nB\n'
+        for mode in (None, '', 'unknown_v2'):
+            for prior_bytes in (raw, raw.replace(b'\r\n', b'\n')):
+                with self.subTest(mode=mode, prior_bytes=prior_bytes):
+                    note.write_bytes(raw)
+                    writer['state']['outputs'][rel] = hashlib.sha256(prior_bytes).hexdigest()
+                    writer['state'].setdefault('output_hash_modes', {})[rel] = mode
+                    before_state = json.loads(json.dumps(writer['state']))
+                    before_mtime = note.stat().st_mtime_ns
+                    self.assertFalse(writer['write'](rel, 'Changed source\n'))
+                    self.assertEqual(note.read_bytes(), raw)
+                    self.assertEqual(note.stat().st_mtime_ns, before_mtime)
+                    self.assertEqual(writer['state'], before_state)
+
+    def test_existing_different_note_without_any_manifest_is_protected(self):
+        writer = self.writer()
+        rel = '02_资料/Synthetic/note.md'
+        note = writer['VAULT'] / rel
+        note.parent.mkdir(parents=True)
+        manual = b'Untracked author text\r\n'
+        note.write_bytes(manual)
+        before_state = json.loads(json.dumps(writer['state']))
+        self.assertFalse(writer['write'](rel, 'Generated source text\n'))
+        self.assertEqual(note.read_bytes(), manual)
+        self.assertEqual(writer['state'], before_state)
+        self.assertFalse(writer['state_path'].exists())
+
+    def test_once_preserves_existing_file_and_hash_mode(self):
+        writer = self.writer()
+        rel = '02_资料/Synthetic/note.md'
+        note = writer['VAULT'] / rel
+        note.parent.mkdir(parents=True)
+        raw = b'Author-maintained note\r\n'
+        note.write_bytes(raw)
+        writer['state']['outputs'][rel] = hashlib.sha256(raw).hexdigest()
+        writer['state']['output_hash_modes'] = {rel: None}
+        before_state = json.loads(json.dumps(writer['state']))
+        before_mtime = note.stat().st_mtime_ns
+        self.assertFalse(writer['write'](rel, 'New generated note\n', once=True))
+        self.assertEqual(note.read_bytes(), raw)
+        self.assertEqual(note.stat().st_mtime_ns, before_mtime)
+        self.assertEqual(writer['state'], before_state)
+        self.assertEqual(writer['conflicts'], [])
 
     def test_unchanged_known_extraction_failure_does_not_repeat_notification(self):
         (self.project / 'broken.pdf').write_bytes(b'synthetic invalid PDF')

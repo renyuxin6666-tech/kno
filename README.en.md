@@ -22,6 +22,14 @@
 
 <p align="center"><a href="#get-started">Get started</a> · <a href="#see-a-real-workspace">Screenshots</a> · <a href="#let-codex-build-on-your-knowledge">Use with Codex</a> · <a href="#weekly-upkeep">Weekly upkeep</a> · <a href="#faq">FAQ</a></p>
 
+## Meet Kno in 30 seconds
+
+[![Kno launch video: turn scattered files into knowledge you can build on](docs/assets/launch-video.png)](https://github.com/renyuxin6666-tech/kno/releases/download/v0.2.1/kno-launch-16x9.mp4)
+
+**Click the cover to watch or download.** [Chinese-subtitled version](https://github.com/renyuxin6666-tech/kno/releases/download/v0.2.1/kno-launch-16x9.mp4) · [Version without burned-in subtitles](https://github.com/renyuxin6666-tech/kno/releases/download/v0.2.1/kno-launch-16x9-clean.mp4) · [Chinese SRT captions](https://github.com/renyuxin6666-tech/kno/releases/download/v0.2.1/kno-launch.zh-CN.srt)
+
+Both versions are 1080p, 30 fps and 30.5 seconds, with Chinese narration and music. [Video details](docs/launch-video.md)
+
 ## Get started
 
 In a **local Codex desktop task** with access to your files, send one message:

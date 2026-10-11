@@ -34,6 +34,7 @@ STATUSES = {key:T(zh,en) for key,zh,en in [
     ('reference_only','文件目录索引','File reference only')]}
 state_path = DATA / 'generation-state.json'
 state = json.loads(state_path.read_text(encoding='utf-8')) if state_path.exists() else {'outputs':{},'sources':{}}
+OUTPUT_HASH_MODE = 'crlf_to_lf_v1'
 conflicts=[]
 
 def safe_name(s):
@@ -59,16 +60,28 @@ def write(rel, content, once=False):
     p=VAULT/rel
     if once and p.exists():
         return False
-    digest=hashlib.sha256(content.encode('utf-8')).hexdigest()
+    # Hash desired and disk bytes with one CRLF-only pass. Write the original
+    # content: normalizing it physically could turn CRCRLF into CRLF and lose
+    # the adjacent lone CR on the next pass. Whitespace and final newlines matter.
+    digest=hashlib.sha256(content.encode('utf-8').replace(b'\r\n', b'\n')).hexdigest()
+    modes=state.get('output_hash_modes',{})
     if p.exists():
-        # Older Windows output used CRLF, but state hashes used LF. Normalize only
-        # newlines so substantive manual edits remain protected.
-        old=hashlib.sha256(p.read_bytes().replace(b'\r\n', b'\n')).hexdigest()
+        raw=p.read_bytes()
+        old=hashlib.sha256(raw.replace(b'\r\n', b'\n')).hexdigest()
         if old==digest:
             state['outputs'][rel]=digest
+            state.setdefault('output_hash_modes',{})[rel]=OUTPUT_HASH_MODE
             return True
         prior=state['outputs'].get(rel)
-        if prior is None or old!=prior:
+        # A missing mode identifies a legacy entry. Raw fallback must never
+        # apply to canonical entries: deleting a lone CR can make an edited
+        # file's raw hash equal its former canonical hash. Unknown modes fail
+        # closed; successful adoption upgrades only this output's hash mode.
+        legacy=rel not in modes
+        known_mode=legacy or modes[rel]==OUTPUT_HASH_MODE
+        unchanged=known_mode and old==prior
+        legacy_raw=legacy and hashlib.sha256(raw).hexdigest()==prior
+        if prior is None or not (unchanged or legacy_raw):
             conflicts.append(rel)
             return False
     p.parent.mkdir(parents=True,exist_ok=True)
@@ -76,6 +89,7 @@ def write(rel, content, once=False):
     temp.write_text(content,encoding='utf-8',newline='\n')
     temp.replace(p)
     state['outputs'][rel]=digest
+    state.setdefault('output_hash_modes',{})[rel]=OUTPUT_HASH_MODE
     return True
 
 def category(name):

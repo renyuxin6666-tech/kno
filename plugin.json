@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "obsidian-knowledge-workspace",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A local personal knowledge workspace for long-term learning, work, projects and research, with source-aware Codex retrieval and scheduled upkeep.",
   "author": {
     "name": "Kno contributors",
