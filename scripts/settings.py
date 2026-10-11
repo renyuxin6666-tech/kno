@@ -149,7 +149,7 @@ class Settings:
 
     @property
     def product_name(self):
-        return self.text('Obsidian 个人知识工作台', 'Obsidian Knowledge Workspace')
+        return self.text('Kno · Obsidian 个人知识工作台', 'Kno · Obsidian Knowledge Workspace')
 
     def env(self):
         return {**os.environ, 'KNOWLEDGE_CONFIG': str(self.filename), 'RESEARCH_CONFIG': str(self.filename), 'PYTHONUTF8': '1'}

@@ -2,14 +2,14 @@
   <a href="README.md">简体中文</a> · <a href="README.en.md">English</a>
 </p>
 
-<h1 align="center">Obsidian Knowledge Workspace</h1>
+<h1 align="center">Kno</h1>
 
 <p align="center"><strong>Turn scattered files into a personal knowledge base you can build on.</strong></p>
 
 <p align="center">Keep sources and insights in Obsidian · Let Codex answer from evidence · Review changes on a schedule</p>
 
 <p align="center">
-  <a href="https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace/actions/workflows/test.yml"><img src="https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace/actions/workflows/test.yml/badge.svg" alt="Pipeline tests"></a>
+  <a href="https://github.com/renyuxin6666-tech/kno/actions/workflows/test.yml"><img src="https://github.com/renyuxin6666-tech/kno/actions/workflows/test.yml/badge.svg" alt="Pipeline tests"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-467B70" alt="MIT License"></a>
   <img src="https://img.shields.io/badge/vault-English%20%2F%20中文-7562A8" alt="English and Chinese vaults">
 </p>
@@ -18,9 +18,7 @@
 
 [Obsidian](https://obsidian.md/) is a knowledge management app that saves notes on your own device. You can write and search notes, link related ideas, and use a canvas to organize material and projects. A **vault** is the folder containing your notes. Notes are ordinary Markdown text files you can keep and edit over time.
 
-**This project helps you get started with it.** Obsidian stores, displays and connects your notes. These tools turn existing files into source-linked navigation and searchable extracts. Codex helps you find relevant material, check originals, save insights and organize changes on your chosen schedule. Start with work, learning, personal life or research files.
-
-![How your files, Obsidian and Codex work together](docs/assets/hero.svg)
+**Kno helps you get started with it.** Obsidian stores, displays and connects your notes. These tools turn existing files into source-linked navigation and searchable extracts. Codex helps you find relevant material, check originals, save insights and organize changes on your chosen schedule. Start with work, learning, personal life or research files.
 
 <p align="center"><a href="#get-started">Get started</a> · <a href="#see-a-real-workspace">Screenshots</a> · <a href="#let-codex-build-on-your-knowledge">Use with Codex</a> · <a href="#weekly-upkeep">Weekly upkeep</a> · <a href="#faq">FAQ</a></p>
 
@@ -28,16 +26,26 @@
 
 In a **local Codex desktop task** with access to your files, send one message:
 
-> Install https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace, connect my “files folder” for long-term knowledge and project management, create an English workspace, and organize it every Sunday at 20:00 in my time zone.
+> Install https://github.com/renyuxin6666-tech/kno, connect my “files folder” for long-term knowledge and project management, create an English workspace, and organize it every Sunday at 20:00 in my time zone.
 
 Replace “files folder” with its actual path, or ask Codex to help select one. It reuses installed software, builds the vault, checks that it opens, and creates or updates a task where the client supports local scheduling. Initial setup needs network access, available Python / Obsidian installation methods, and the relevant permissions. Codex should explain any missing requirement.
 
 **Start with the folders you already have.** Work, reading, courses, personal plans, creative projects and research all fit; you do not need to learn commands first.
 
+## See how notes connect
+
+![Real Obsidian graph with private note names hidden](docs/assets/graph-redacted.png)
+
+*An actual Obsidian graph capture, with private note names hidden for public display.*
+
+**Dots are notes; lines are links between them.** Hover to see connections, click to open a note, use colored groups for topics, or explore one note's local graph. [Obsidian graph guide](https://obsidian.md/help/plugins/graph).
+
+Graph shows links between notes, including links from automatic navigation. Canvas is a whiteboard for arranging cards and material. Follow a link back to its note to keep reading and check its context.
+
 <details>
 <summary>Build a vault on Windows without Codex</summary>
 
-1. Download a ZIP from [Releases](https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace/releases/latest) and extract it into a stable, writable folder.
+1. Download a ZIP from [Releases](https://github.com/renyuxin6666-tech/kno/releases/latest) and extract it into a stable, writable folder.
 2. For an English vault, run `powershell -NoProfile -File scripts/bootstrap.ps1 -Language en`. **Start.cmd** uses Chinese by default. Select your source folder.
 3. When the home page opens, use **Ctrl + Shift + F** to search and save your own insights under **My Notes**.
 
@@ -58,6 +66,8 @@ Existing Python 3.11+ and Obsidian are reused; missing software is installed thr
 *An actual Obsidian Canvas map with private project labels covered. It helps you find material; you confirm project status and accepted conclusions. This existing research example retains its original names; new vaults use general names.*
 
 ## Keep knowledge useful over time
+
+![Kno: how your files, Obsidian and Codex work together](docs/assets/hero.svg)
 
 | What you collect | How the workspace helps |
 | --- | --- |
@@ -84,7 +94,7 @@ Language selection covers new vault pages, templates and working instructions. E
 
 Fill in **My Current Focus / 我的近况** with your priorities, current work and open questions. Empty fields remain unknown. Folder names and file dates cannot establish your current intentions.
 
-The repository packages a Codex plugin with three workflows:
+Kno packages a Codex plugin with three workflows:
 
 | Workflow | Purpose |
 | --- | --- |
@@ -118,7 +128,7 @@ For index updates only, **Enable-Weekly.cmd** creates a Windows task with no mod
 
 **Does it fully understand scans, images or CAD?** OCR, semantic retrieval and complete image / model understanding are not implemented. Text extraction for PDFs, Word and slides has limits, recorded in the coverage report. Consequential conclusions need original-source checks.
 
-**Is it just for research?** It covers work, learning, creative projects, personal planning and research. The project and GitHub repository now use the general name Obsidian Knowledge Workspace. Existing local vaults keep working with their current folders, settings and schedules.
+**Is it just for research?** It covers work, learning, creative projects, personal planning and research. The project is **Kno**, with the GitHub repository named `kno`. Existing local vaults keep working with their current folders, settings and schedules.
 
 **Which systems are supported?** Desktop launchers target Windows 10/11. The Python pipeline is tested in Windows / Linux CI; installation and desktop integration on other systems need manual setup. The missing-software WinGet branch exists but has not completed acceptance testing on a fresh Windows computer.
 

@@ -1,4 +1,4 @@
-# Codex plugin / Codex 插件
+# Kno Codex plugin / Kno Codex 插件
 
 [中文](#中文) · [English](#english)
 
@@ -6,11 +6,11 @@
 
 在有本机文件权限的 Codex 对话里说：
 
-> 安装 https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace，接入我的「资料文件夹」，作为长期知识和工作项目管理工具，每周日 20:00 自动整理。
+> 安装 https://github.com/renyuxin6666-tech/kno，接入我的「资料文件夹」，作为长期知识和工作项目管理工具，每周日 20:00 自动整理。
 
 把「资料文件夹」替换成自己的路径。已有知识库时提供它的工作区或 `settings.local.json`，Codex 会复用，避免重复导入。首次建立只需确定资料目录；输出位置和中文/英文可从当前请求推断，不明确时再询问。
 
-插件提供三个技能：
+Kno 插件提供三个技能：
 
 | 技能 | 用途 |
 | --- | --- |
@@ -33,7 +33,7 @@ python scripts/install_codex_plugin.py install
 标准仓库来源命令也可使用：
 
 ```text
-codex plugin marketplace add renyuxin6666-tech/obsidian-knowledge-workspace
+codex plugin marketplace add renyuxin6666-tech/kno
 ```
 
 这属于仓库/本机来源分发，尚未代表被通用公共插件目录审核收录。支持能力与刷新要求以当前 Codex 版本为准。[官方打包与来源文档](https://developers.openai.com/plugins/build/plugins)
@@ -55,9 +55,9 @@ python scripts/install_codex_plugin.py workspaces
 
 Say this in a Codex conversation with access to your local files:
 
-> Install https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace, connect my “material folder” as a long-term personal knowledge and project workspace, and organize it every Sunday at 20:00.
+> Install https://github.com/renyuxin6666-tech/kno, connect my “material folder” as a long-term personal knowledge and project workspace, and organize it every Sunday at 20:00.
 
-Replace the folder with your own path. Supply an existing workspace or its `settings.local.json` to reconnect without importing another vault. The three skills handle setup (`$setup-knowledge`), evidence retrieval (`$knowledge-retrieval`) and meaningful upkeep (`$maintain-knowledge`). They support learning, work, decisions, creative projects and research in your chosen material language.
+Replace the folder with your own path. Supply an existing workspace or its `settings.local.json` to reconnect without importing another vault. Kno’s three skills handle setup (`$setup-knowledge`), evidence retrieval (`$knowledge-retrieval`) and meaningful upkeep (`$maintain-knowledge`). They support learning, work, decisions, creative projects and research in your chosen material language.
 
 Run `python scripts/install_codex_plugin.py install` from the downloaded project. The installer exports an explicit list of public tool files and reviewed images; scratch Markdown, raw screenshots, runtime folders and local configuration are not included by file extension. The list does not replace a content review of those named files. It registers its own local marketplace through the native Codex CLI and installs when the host supports `codex plugin add`. It verifies the installed/enabled fields, backs up existing configuration and preserves unrelated plugins. Older hosts may require app refresh/restart and installation from the registered source; registration alone is not installation. A new conversation or app refresh may be needed to discover newly installed skills.
 

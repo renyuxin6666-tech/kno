@@ -1,6 +1,6 @@
-# Obsidian Knowledge Workspace
+# Kno — Personal knowledge workspace
 
-This repository packages a general personal knowledge and project workspace for work, learning, creative projects, personal planning and research. Its public name is `obsidian-knowledge-workspace`. Existing local checkout folders do not need renaming. New vaults support Chinese and English; existing vaults retain their paths and personal notes.
+Kno packages a general personal knowledge and project workspace for work, learning, creative projects, personal planning and research. Its public repository is `kno`; its stable plugin identifier is `obsidian-knowledge-workspace`. Existing local checkout folders do not need renaming. New vaults support Chinese and English; existing vaults retain their paths and personal notes.
 
 ## Setup and use
 

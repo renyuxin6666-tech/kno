@@ -30,7 +30,7 @@ PUBLIC_PATHS = frozenset({
     'docs/automation.md', 'docs/automation.en.md', 'docs/codex-plugin.md',
     'docs/privacy.md', 'docs/privacy.en.md', 'docs/release-notes.md',
     'docs/assets/README.md', 'docs/assets/hero.svg', 'docs/assets/weekly-flow.svg',
-    'docs/assets/workspace-redacted.png', 'docs/assets/map-redacted.png',
+    'docs/assets/workspace-redacted.png', 'docs/assets/map-redacted.png', 'docs/assets/graph-redacted.png',
 })
 
 
@@ -130,10 +130,14 @@ def merge_marketplace(path, relative_source):
         raise ValueError('Marketplace source must be a contained ./-prefixed path')
     value = read_json(path) if path.exists() else {
         'name': MARKETPLACE,
-        'interface': {'displayName': 'Obsidian Knowledge Workspace'},
+        'interface': {'displayName': 'Kno'},
         'plugins': []}
     if not isinstance(value.get('plugins'), list) or not value.get('name'):
         raise ValueError('Existing marketplace has an invalid shape; left unchanged')
+    if (value['name'] == MARKETPLACE
+            and isinstance(value.get('interface'), dict)
+            and value['interface'].get('displayName') == 'Obsidian Knowledge Workspace'):
+        value['interface'] = {**value['interface'], 'displayName': 'Kno'}
     owned = {
         'name': PLUGIN,
         'source': {'source': 'local', 'path': relative_source},

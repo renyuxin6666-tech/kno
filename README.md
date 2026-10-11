@@ -2,14 +2,14 @@
   <a href="README.md">简体中文</a> · <a href="README.en.md">English</a>
 </p>
 
-<h1 align="center">Obsidian 个人知识工作台</h1>
+<h1 align="center">Kno</h1>
 
 <p align="center"><strong>把散落的资料，变成可以积累、查找、继续工作的个人知识库。</strong></p>
 
 <p align="center">Obsidian 保存资料与理解 · Codex 按来源回答 · 定期任务帮你持续整理</p>
 
 <p align="center">
-  <a href="https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace/actions/workflows/test.yml"><img src="https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace/actions/workflows/test.yml/badge.svg" alt="管线测试"></a>
+  <a href="https://github.com/renyuxin6666-tech/kno/actions/workflows/test.yml"><img src="https://github.com/renyuxin6666-tech/kno/actions/workflows/test.yml/badge.svg" alt="管线测试"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-467B70" alt="MIT License"></a>
   <img src="https://img.shields.io/badge/vault-中文%20%2F%20English-7562A8" alt="中文与英文知识库">
 </p>
@@ -18,9 +18,7 @@
 
 [Obsidian](https://obsidian.md/) 是一款把笔记保存在本机的知识管理软件。你可以写笔记、搜索内容，把相关笔记互相链接，或者用白板梳理资料与项目的关系。它把一组笔记所在的文件夹叫作 **Vault（知识库）**；笔记是普通的 Markdown 文本文件，方便长期保存和继续编辑。
 
-**这个项目帮你把它用起来。** Obsidian 负责保存、阅读和连接笔记；本工具把已有资料建立成带来源的导航与可搜索摘录；Codex 帮你查资料、核对原文、保存理解，并按你选的时间持续整理。可以从工作、学习、生活或研究文件夹开始。
-
-![资料、知识库与 Codex 的工作关系](docs/assets/hero.svg)
+**Kno 帮你把它用起来。** Obsidian 负责保存、阅读和连接笔记；本工具把已有资料建立成带来源的导航与可搜索摘录；Codex 帮你查资料、核对原文、保存理解，并按你选的时间持续整理。可以从工作、学习、生活或研究文件夹开始。
 
 <p align="center"><a href="#开始使用">开始使用</a> · <a href="#看看整理后的样子">实际界面</a> · <a href="#让-codex-接着你的积累工作">与 Codex 一起工作</a> · <a href="#每周自动整理">定期整理</a> · <a href="#常见问题">常见问题</a></p>
 
@@ -28,16 +26,26 @@
 
 在能访问本机文件夹的 **Codex 桌面任务** 中，发送这一句话：
 
-> 安装 https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace，接入我的「资料文件夹」，用于长期知识与项目管理，并按我的时区每周日 20:00 自动整理。
+> 安装 https://github.com/renyuxin6666-tech/kno，接入我的「资料文件夹」，用于长期知识与项目管理，并按我的时区每周日 20:00 自动整理。
 
 把「资料文件夹」换成实际路径；还没选好时，直接让 Codex 帮你选择。它会复用已有软件，建立知识库，核对打开结果，再在支持本机定期任务的客户端中创建或复用任务。首次安装需要网络、可用的 Python / Obsidian 安装渠道及相应权限；遇到这些条件不足时，Codex 会说明具体缺口。
 
 **无需先学命令，也无需预先把资料整理好。** 工作资料、课程与阅读、生活计划、创作和研究都可以从现有文件夹开始。
 
+## 看见笔记之间的关系
+
+![真实 Obsidian 关系图，私密笔记名已隐藏](docs/assets/graph-redacted.png)
+
+*实际 Obsidian 关系图截图，已为公开展示隐藏私密笔记名。*
+
+**点是一篇笔记，线是笔记间的链接。** 悬停看连接，点击打开笔记；可以按主题分组着色，或打开某篇笔记的局部关系图。[Obsidian 关系图说明](https://obsidian.md/help/plugins/graph)。
+
+Graph 显示笔记之间的链接，也包括自动导航产生的连接；Canvas 是自由排布资料卡片的白板。沿着链接回到笔记，可以继续阅读和核对内容。
+
 <details>
 <summary>不用 Codex，直接在 Windows 建库</summary>
 
-1. 从 [Releases](https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace/releases/latest) 下载 ZIP，解压到固定的可写文件夹。
+1. 从 [Releases](https://github.com/renyuxin6666-tech/kno/releases/latest) 下载 ZIP，解压到固定的可写文件夹。
 2. 双击 **Start.cmd**，选择资料文件夹。已有 Python 3.11+ 和 Obsidian 会被复用；缺少时尝试通过 Windows Package Manager 安装。
 3. 首页打开后，按 **Ctrl + Shift + F** 搜索，在 **我的笔记** 中保存自己的理解。
 
@@ -60,6 +68,8 @@
 *实际 Obsidian Canvas 资料地图，私人项目标签已遮盖。它帮助你找到已有材料；项目状态与结论是否已采用，需要由你确认。截图来自保留原命名的研究资料案例，新知识库使用通用命名。*
 
 ## 从保存资料，到继续工作
+
+![Kno：资料、Obsidian 与 Codex 的工作关系](docs/assets/hero.svg)
 
 | 你的积累 | 工作台怎样帮助你 |
 | --- | --- |
@@ -86,7 +96,7 @@
 
 先在 **我的近况 / My Current Focus** 写下当前重点、正在做的事情与待解决问题。空白字段会被当作未知；目录名和文件日期不会替你决定优先级。
 
-本项目包含 Codex 插件包和三个工作流：
+Kno 包含 Codex 插件包和三个工作流：
 
 | 工作流 | 用途 |
 | --- | --- |
@@ -120,7 +130,7 @@ Agent 会检查原文件是否仍存在、摘录是否匹配来源哈希，再�
 
 **能完整理解扫描 PDF、图片和 CAD 吗？** 当前无 OCR、语义检索或完整的图像 / 模型理解。PDF、Word、幻灯片等做有上限的文字提取，覆盖报告会记录缺口；重要结论需要原文核对。
 
-**只能用来做研究吗？** 工作、学习、创作、生活和研究都适用。项目与 GitHub 仓库已采用通用名称 Obsidian Knowledge Workspace；既有本机知识库可以继续使用原来的目录、配置和定期任务。
+**只能用来做研究吗？** 工作、学习、创作、生活和研究都适用。项目名为 **Kno**，GitHub 仓库名为 `kno`；既有本机知识库可以继续使用原来的目录、配置和定期任务。
 
 **支持哪些系统？** 双击安装入口针对 Windows 10/11。Python 核心管线在 Windows / Linux 的 CI 中验证；其他系统的软件安装与桌面入口需要自行配置。缺少软件的 WinGet 分支已实现，尚未在全新 Windows 电脑完整验收。
 

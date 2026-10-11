@@ -1,7 +1,7 @@
 {
   "name": "obsidian-knowledge",
   "interface": {
-    "displayName": "Obsidian Knowledge Workspace"
+    "displayName": "Kno"
   },
   "plugins": [
     {

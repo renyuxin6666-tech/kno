@@ -3,21 +3,21 @@
   "version": "0.2.0",
   "description": "A local personal knowledge workspace for long-term learning, work, projects and research, with source-aware Codex retrieval and scheduled upkeep.",
   "author": {
-    "name": "Obsidian Knowledge Workspace contributors",
+    "name": "Kno contributors",
     "url": "https://github.com/renyuxin6666-tech"
   },
-  "homepage": "https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace",
-  "repository": "https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace",
+  "homepage": "https://github.com/renyuxin6666-tech/kno",
+  "repository": "https://github.com/renyuxin6666-tech/kno",
   "license": "MIT",
   "skills": "./skills/",
   "interface": {
-    "displayName": "Obsidian Knowledge Workspace",
+    "displayName": "Kno",
     "shortDescription": "Build, search and maintain your personal knowledge",
     "longDescription": "Connect local learning notes, project material, work records and research to an Obsidian vault. Let Codex retrieve relevant evidence and maintain it on your chosen schedule.",
-    "developerName": "Obsidian Knowledge Workspace contributors",
+    "developerName": "Kno contributors",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
-    "websiteURL": "https://github.com/renyuxin6666-tech/obsidian-knowledge-workspace",
+    "websiteURL": "https://github.com/renyuxin6666-tech/kno",
     "defaultPrompt": [
       "Connect my local material to a personal knowledge workspace and arrange weekly upkeep.",
       "Search my knowledge workspace for relevant sources before answering.",
